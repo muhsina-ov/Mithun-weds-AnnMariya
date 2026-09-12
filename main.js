@@ -15,7 +15,7 @@ document.addEventListener('DOMContentLoaded', () => {
   
   // Audio Elements
   const bgMusic = document.getElementById('bgMusic');
-  const defaultYoutubeUrl = 'https://youtu.be/bXa-wbiXiOw?si=BkU1fQEBroNPAun5';
+  const defaultYoutubeUrl = 'https://youtu.be/bXa-wbiXiOw?si=4VKIwIdMViFVcH-S';
   
   // Controls & Modals
   const audioToggleBtn = document.getElementById('audioToggleBtn');
@@ -381,13 +381,13 @@ document.addEventListener('DOMContentLoaded', () => {
       const playPromise = bgMusic.play();
       if (playPromise !== undefined) {
         playPromise.catch(err => {
-          console.warn('HTML5 audio play notice:', err);
+          console.warn('HTML5 audio play notice, falling back to YouTube:', err);
+          playYouTubeBackgroundMusic(defaultYoutubeUrl, true);
         });
       }
+    } else {
+      playYouTubeBackgroundMusic(defaultYoutubeUrl, true);
     }
-
-    // 2. Play YouTube background music as well
-    playYouTubeBackgroundMusic(defaultYoutubeUrl, true);
 
     // 3. Hide tap callout overlay
     tapOverlay.classList.add('fade-out');
@@ -451,6 +451,7 @@ document.addEventListener('DOMContentLoaded', () => {
       bgMusic.pause();
       bgMusic.currentTime = 0;
     }
+    pauseYouTubeBackgroundMusic();
     
     staticCanvas.classList.remove('active');
     invitationOverlay.classList.remove('revealed');
@@ -520,6 +521,19 @@ document.addEventListener('DOMContentLoaded', () => {
       ytPlayerIframe.contentWindow.postMessage(JSON.stringify({
         event: 'command',
         func: command,
+        args: []
+      }), '*');
+    } catch (e) {
+      console.warn('YouTube audio postMessage notice:', e);
+    }
+  }
+
+  function pauseYouTubeBackgroundMusic() {
+    if (!ytPlayerIframe || !ytPlayerIframe.contentWindow) return;
+    try {
+      ytPlayerIframe.contentWindow.postMessage(JSON.stringify({
+        event: 'command',
+        func: 'pauseVideo',
         args: []
       }), '*');
     } catch (e) {
