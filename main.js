@@ -13,6 +13,10 @@ document.addEventListener('DOMContentLoaded', () => {
   const tapOverlay = document.getElementById('tapOverlay');
   const invitationOverlay = document.getElementById('invitationOverlay');
   
+  // Audio Elements
+  const bgMusic = document.getElementById('bgMusic');
+  const defaultYoutubeUrl = 'https://youtu.be/bXa-wbiXiOw?si=BkU1fQEBroNPAun5';
+  
   // Controls & Modals
   const audioToggleBtn = document.getElementById('audioToggleBtn');
   const audioIconOn = document.getElementById('audioIconOn');
@@ -26,7 +30,6 @@ document.addEventListener('DOMContentLoaded', () => {
   const addToCalendarBtn = document.getElementById('addToCalendarBtn');
 
   // Application State
-  const defaultYoutubeUrl = 'https://youtu.be/bXa-wbiXiOw?si=BkU1fQEBroNPAun5';
   let isAudioMuted = false;
   let isPlaying = false;
   let hasOpened = false;
@@ -108,10 +111,156 @@ document.addEventListener('DOMContentLoaded', () => {
     void invitationOverlay.offsetWidth;
     invitationOverlay.classList.add('revealed');
 
-    // Trigger celebratory gold confetti
+    // Initialize HTML5 Scratch Canvas once overlay is visible
     setTimeout(() => {
-      triggerConfetti();
-    }, 400);
+      initScratchCanvas();
+    }, 180);
+  }
+
+  // --- HTML5 Scratch Card Engine for Date ---
+  const scratchCanvas = document.getElementById('scratchCanvas');
+  const scratchHint = document.getElementById('scratchHint');
+  const quickRevealBtn = document.getElementById('quickRevealBtn');
+  let scratchCtx = null;
+  let isScratching = false;
+  let hasScratchedCleared = false;
+  let dragCount = 0;
+
+  function initScratchCanvas() {
+    if (!scratchCanvas) return;
+    scratchCtx = scratchCanvas.getContext('2d');
+    
+    const container = document.getElementById('scratchContainer');
+    if (!container) return;
+    
+    scratchCanvas.width = container.offsetWidth || 340;
+    scratchCanvas.height = container.offsetHeight || 130;
+    
+    // Render Metallic Gold Foil Gradient
+    const grad = scratchCtx.createLinearGradient(0, 0, scratchCanvas.width, scratchCanvas.height);
+    grad.addColorStop(0, '#E5C158');
+    grad.addColorStop(0.3, '#FFF4D0');
+    grad.addColorStop(0.7, '#D4A338');
+    grad.addColorStop(1, '#9E741B');
+    
+    scratchCtx.fillStyle = grad;
+    scratchCtx.fillRect(0, 0, scratchCanvas.width, scratchCanvas.height);
+    
+    // Add shimmering gold foil texture speckles
+    scratchCtx.fillStyle = 'rgba(255, 255, 255, 0.4)';
+    for (let i = 0; i < 180; i++) {
+      const x = Math.random() * scratchCanvas.width;
+      const y = Math.random() * scratchCanvas.height;
+      const r = Math.random() * 2 + 0.5;
+      scratchCtx.beginPath();
+      scratchCtx.arc(x, y, r, 0, Math.PI * 2);
+      scratchCtx.fill();
+    }
+    
+    // Add prompt text on foil
+    scratchCtx.font = '600 13px Cinzel, Georgia, serif';
+    scratchCtx.fillStyle = 'rgba(10, 10, 15, 0.82)';
+    scratchCtx.textAlign = 'center';
+    scratchCtx.fillText('✦ SCRATCH TO UNLOCK DATE ✦', scratchCanvas.width / 2, scratchCanvas.height / 2 + 5);
+  }
+
+  function scratchAt(x, y) {
+    if (!scratchCtx || hasScratchedCleared) return;
+    
+    scratchCtx.globalCompositeOperation = 'destination-out';
+    scratchCtx.beginPath();
+    scratchCtx.arc(x, y, 24, 0, Math.PI * 2);
+    scratchCtx.fill();
+    
+    dragCount++;
+    if (dragCount % 8 === 0) {
+      checkScratchPercentage();
+    }
+  }
+
+  function getScratchCoords(e) {
+    const rect = scratchCanvas.getBoundingClientRect();
+    let clientX = e.clientX;
+    let clientY = e.clientY;
+    
+    if (e.touches && e.touches[0]) {
+      clientX = e.touches[0].clientX;
+      clientY = e.touches[0].clientY;
+    }
+    
+    return {
+      x: clientX - rect.left,
+      y: clientY - rect.top
+    };
+  }
+
+  function checkScratchPercentage() {
+    if (hasScratchedCleared || !scratchCtx) return;
+    
+    const imgData = scratchCtx.getImageData(0, 0, scratchCanvas.width, scratchCanvas.height);
+    const pixels = imgData.data;
+    let transparentCount = 0;
+    
+    for (let i = 3; i < pixels.length; i += 16) {
+      if (pixels[i] === 0) {
+        transparentCount++;
+      }
+    }
+    
+    const totalSampled = pixels.length / 16;
+    const ratio = transparentCount / totalSampled;
+    
+    if (ratio > 0.32) {
+      revealDateFully();
+    }
+  }
+
+  function revealDateFully() {
+    if (hasScratchedCleared) return;
+    hasScratchedCleared = true;
+    
+    if (scratchCanvas) scratchCanvas.classList.add('fade-out');
+    if (scratchHint) scratchHint.style.opacity = '0';
+    if (quickRevealBtn) quickRevealBtn.style.display = 'none';
+    
+    triggerConfetti();
+  }
+
+  if (scratchCanvas) {
+    scratchCanvas.addEventListener('mousedown', (e) => {
+      isScratching = true;
+      const coords = getScratchCoords(e);
+      scratchAt(coords.x, coords.y);
+    });
+
+    scratchCanvas.addEventListener('touchstart', (e) => {
+      isScratching = true;
+      const coords = getScratchCoords(e);
+      scratchAt(coords.x, coords.y);
+    }, { passive: true });
+
+    scratchCanvas.addEventListener('mousemove', (e) => {
+      if (!isScratching) return;
+      const coords = getScratchCoords(e);
+      scratchAt(coords.x, coords.y);
+    });
+
+    scratchCanvas.addEventListener('touchmove', (e) => {
+      if (!isScratching) return;
+      e.preventDefault(); // Prevent page scrolling during scratch!
+      const coords = getScratchCoords(e);
+      scratchAt(coords.x, coords.y);
+    }, { passive: false });
+
+    ['mouseup', 'mouseleave', 'touchend'].forEach(evt => {
+      scratchCanvas.addEventListener(evt, () => {
+        isScratching = false;
+      });
+    });
+  }
+
+  if (quickRevealBtn) {
+    quickRevealBtn.addEventListener('click', revealDateFully);
   }
 
   // --- Gold Confetti Particle Celebration Engine ---
@@ -131,16 +280,16 @@ document.addEventListener('DOMContentLoaded', () => {
     const colors = ['#FFF4D0', '#E5C158', '#D4A338', '#FFFFFF', '#F5D77F'];
     confettiParticles = [];
     
-    for (let i = 0; i < 60; i++) {
+    for (let i = 0; i < 65; i++) {
       confettiParticles.push({
-        x: confettiCanvas.width / 2 + (Math.random() * 60 - 30),
-        y: confettiCanvas.height * 0.3,
-        vx: (Math.random() - 0.5) * 10,
-        vy: (Math.random() * -8) - 3,
+        x: confettiCanvas.width / 2 + (Math.random() * 80 - 40),
+        y: confettiCanvas.height * 0.35,
+        vx: (Math.random() - 0.5) * 11,
+        vy: (Math.random() * -9) - 4,
         size: Math.random() * 5 + 3,
         color: colors[Math.floor(Math.random() * colors.length)],
         rotation: Math.random() * 360,
-        rotationSpeed: (Math.random() - 0.5) * 6,
+        rotationSpeed: (Math.random() - 0.5) * 7,
         opacity: 1
       });
     }
@@ -224,17 +373,30 @@ document.addEventListener('DOMContentLoaded', () => {
     isPlaying = true;
     initAudioContext();
 
-    // Trigger YouTube background music
+    // 1. Play direct HTML5 background audio (reliable across all mobile browsers)
+    if (bgMusic) {
+      bgMusic.currentTime = 0;
+      bgMusic.muted = isAudioMuted;
+      bgMusic.volume = 1.0;
+      const playPromise = bgMusic.play();
+      if (playPromise !== undefined) {
+        playPromise.catch(err => {
+          console.warn('HTML5 audio play notice:', err);
+        });
+      }
+    }
+
+    // 2. Play YouTube background music as well
     playYouTubeBackgroundMusic(defaultYoutubeUrl, true);
 
-    // 1. Hide tap callout overlay
+    // 3. Hide tap callout overlay
     tapOverlay.classList.add('fade-out');
     
-    // 2. Hide poster image & clear static canvas
+    // 4. Hide poster image & clear static canvas
     posterImg.classList.add('fade-out');
     staticCanvas.classList.remove('active');
     
-    // 3. Reset video playback to 0 and play continuous video
+    // 5. Reset video playback to 0 and play continuous video
     video.currentTime = 0;
 
     const playPromise = video.play();
@@ -284,12 +446,29 @@ document.addEventListener('DOMContentLoaded', () => {
     
     video.pause();
     video.currentTime = 0;
+
+    if (bgMusic) {
+      bgMusic.pause();
+      bgMusic.currentTime = 0;
+    }
     
     staticCanvas.classList.remove('active');
     invitationOverlay.classList.remove('revealed');
     
     const lanternsContainer = document.getElementById('lanternsContainer');
     if (lanternsContainer) lanternsContainer.classList.remove('revealed');
+
+    // Reset scratch card
+    hasScratchedCleared = false;
+    if (scratchCanvas) {
+      scratchCanvas.classList.remove('fade-out');
+    }
+    if (scratchHint) {
+      scratchHint.style.opacity = '1';
+    }
+    if (quickRevealBtn) {
+      quickRevealBtn.style.display = 'inline-block';
+    }
 
     setTimeout(() => {
       invitationOverlay.classList.add('hidden');
@@ -306,7 +485,7 @@ document.addEventListener('DOMContentLoaded', () => {
   let ytPlayerIframe = null;
 
   function extractYouTubeId(url) {
-    if (!url) return '';
+    if (!url) return 'bXa-wbiXiOw';
     url = url.trim();
     const regExp = /^.*(youtu.be\/|v\/|u\/\w\/|embed\/|watch\?v=|\&v=)([^#\&\?]*).*/;
     const match = url.match(regExp);
@@ -314,28 +493,24 @@ document.addEventListener('DOMContentLoaded', () => {
       return match[2];
     }
     if (url.length === 11) return url;
-    return '';
+    return 'bXa-wbiXiOw';
   }
 
-  function playYouTubeBackgroundMusic(url, autoPlay = true) {
+  function playYouTubeBackgroundMusic(url = 'bXa-wbiXiOw', autoPlay = true) {
     const videoId = extractYouTubeId(url);
-    if (!videoId) return;
-
     const container = document.getElementById('youtubePlayerContainer');
     if (!container) return;
 
-    if (ytPlayerIframe) {
+    if (!ytPlayerIframe) {
+      const muteParam = isAudioMuted ? 1 : 0;
+      const playParam = autoPlay ? 1 : 0;
+      container.innerHTML = `<iframe id="ytIframe" width="1" height="1" 
+        src="https://www.youtube.com/embed/${videoId}?enablejsapi=1&autoplay=${playParam}&loop=1&playlist=${videoId}&controls=0&mute=${muteParam}&playsinline=1" 
+        frameborder="0" allow="autoplay; encrypted-media; picture-in-picture"></iframe>`;
+      ytPlayerIframe = document.getElementById('ytIframe');
+    } else {
       toggleYouTubeAudioMute(isAudioMuted);
-      return;
     }
-
-    const muteParam = isAudioMuted ? 1 : 0;
-    const playParam = autoPlay ? 1 : 0;
-    container.innerHTML = `<iframe id="ytIframe" width="200" height="200" 
-      src="https://www.youtube.com/embed/${videoId}?enablejsapi=1&autoplay=${playParam}&loop=1&playlist=${videoId}&controls=0&mute=${muteParam}" 
-      frameborder="0" allow="autoplay"></iframe>`;
-
-    ytPlayerIframe = document.getElementById('ytIframe');
   }
 
   function toggleYouTubeAudioMute(isMuted) {
@@ -356,6 +531,10 @@ document.addEventListener('DOMContentLoaded', () => {
   audioToggleBtn.addEventListener('click', () => {
     isAudioMuted = !isAudioMuted;
     video.muted = isAudioMuted;
+
+    if (bgMusic) {
+      bgMusic.muted = isAudioMuted;
+    }
     
     toggleYouTubeAudioMute(isAudioMuted);
 
@@ -366,6 +545,9 @@ document.addEventListener('DOMContentLoaded', () => {
       audioIconOn.classList.remove('hidden');
       audioIconOff.classList.add('hidden');
       initAudioContext();
+      if (bgMusic && bgMusic.paused && hasOpened) {
+        bgMusic.play().catch(() => {});
+      }
     }
   });
 

@@ -40,6 +40,7 @@
   <!-- Critical Asset Preloading for Instant Render -->
   <link rel="preload" href="/assets/doors/1.avif" as="image" type="image/avif" fetchpriority="high">
   <link rel="preload" href="/assets/doors/1.mp4" as="video" type="video/mp4">
+  <link rel="preload" href="/assets/bgm.mp3" as="audio" type="audio/mpeg">
 
   <link rel="stylesheet" href="./style.css">
 </head>
@@ -47,7 +48,13 @@
   <!-- Ambient Desktop Background -->
   <div class="ambient-backdrop" id="ambientBackdrop"></div>
 
-  <!-- Background YouTube Music Player Container -->
+  <!-- Background Audio (Direct MP3 & M4A for 100% Reliable Playback) -->
+  <audio id="bgMusic" loop preload="auto" playsinline>
+    <source src="/assets/bgm.mp3" type="audio/mp3">
+    <source src="/assets/bgm.m4a" type="audio/mp4">
+  </audio>
+
+  <!-- Background YouTube Music Player Container Fallback -->
   <div id="youtubePlayerContainer" class="youtube-player-container"></div>
 
   <!-- Top Floating Controls -->
@@ -132,17 +139,33 @@
             REQUEST THE HONOR OF YOUR PRESENCE AT THE CELEBRATION OF THEIR MARRIAGE
           </p>
 
-          <!-- Date & Time Card -->
-          <div class="date-time-card-wrapper animate-element" style="--delay: 0.65s;">
-            <div class="date-time-card">
-              <div class="date-day">FRIDAY</div>
-              <div class="date-main">
-                <span class="date-month">OCTOBER</span>
-                <span class="date-num">23</span>
-                <span class="date-year">2026</span>
+          <!-- Interactive Scratch-to-Reveal Date Card -->
+          <div class="scratch-card-wrapper animate-element" style="--delay: 0.65s;">
+            <div class="scratch-card-container" id="scratchContainer">
+              <!-- Underneath Date Card -->
+              <div class="date-time-card" id="dateTimeCard">
+                <div class="date-day" id="displayDay">FRIDAY</div>
+                <div class="date-main">
+                  <span class="date-month" id="displayMonth">OCTOBER</span>
+                  <span class="date-num" id="displayDateNum">23</span>
+                  <span class="date-year" id="displayYear">2026</span>
+                </div>
+                <div class="date-time" id="displayTime">AT 11:00 AM</div>
               </div>
-              <div class="date-time">AT 11:00 AM</div>
+              
+              <!-- Gold Scratch Foil Canvas -->
+              <canvas id="scratchCanvas" class="scratch-canvas"></canvas>
+              
+              <!-- Scratch Hint Badge -->
+              <div class="scratch-hint-badge" id="scratchHint">
+                <span class="sparkle-icon">✨</span>
+                <span>Scratch foil to reveal date</span>
+              </div>
             </div>
+
+            <button id="quickRevealBtn" class="quick-reveal-btn">
+              <span>Quick Reveal Date ✨</span>
+            </button>
           </div>
 
           <!-- Live Countdown Row -->
