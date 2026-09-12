@@ -1,7 +1,5 @@
-import './style.css';
-
 /* ==========================================================================
-   PREMIUM CINEMATIC DIGITAL WEDDING INVITATION - LOGIC & ANIMATION ENGINE
+   MITHUN & ANN MARIYA WEDDING INVITATION - LOGIC & ANIMATION ENGINE
    ========================================================================== */
 
 document.addEventListener('DOMContentLoaded', () => {
@@ -16,28 +14,19 @@ document.addEventListener('DOMContentLoaded', () => {
   const invitationOverlay = document.getElementById('invitationOverlay');
   
   // Controls & Modals
-  const doorSelectBtn = document.getElementById('doorSelectBtn');
-  const editDetailsBtn = document.getElementById('editDetailsBtn');
   const audioToggleBtn = document.getElementById('audioToggleBtn');
   const audioIconOn = document.getElementById('audioIconOn');
   const audioIconOff = document.getElementById('audioIconOff');
   const replayBtn = document.getElementById('replayBtn');
   
-  // Modals
-  const doorModal = document.getElementById('doorModal');
-  const closeDoorModal = document.getElementById('closeDoorModal');
-  const editorModal = document.getElementById('editorModal');
-  const closeEditorModal = document.getElementById('closeEditorModal');
+  // Location Map Modal
   const mapModal = document.getElementById('mapModal');
   const openMapBtn = document.getElementById('openMapBtn');
   const closeMapModal = document.getElementById('closeMapModal');
   const addToCalendarBtn = document.getElementById('addToCalendarBtn');
-  
-  // Forms & Inputs
-  const editorForm = document.getElementById('editorForm');
 
   // Application State
-  let currentDoorId = '1';
+  const defaultYoutubeUrl = 'https://youtu.be/bXa-wbiXiOw?si=BkU1fQEBroNPAun5';
   let isAudioMuted = false;
   let isPlaying = false;
   let hasOpened = false;
@@ -62,7 +51,7 @@ document.addEventListener('DOMContentLoaded', () => {
     if (!container) return;
 
     container.innerHTML = '';
-    const lanternCount = 22;
+    const lanternCount = 20;
     const depthTiers = ['depth-far', 'depth-far', 'depth-mid', 'depth-mid', 'depth-near'];
 
     for (let i = 0; i < lanternCount; i++) {
@@ -70,10 +59,10 @@ document.addEventListener('DOMContentLoaded', () => {
       const depthClass = depthTiers[Math.floor(Math.random() * depthTiers.length)];
       lantern.className = `lantern-item ${depthClass}`;
 
-      const leftPos = (Math.random() * 92 + 4).toFixed(1);
-      const duration = (Math.random() * 14 + 14).toFixed(1);
-      const delay = (Math.random() * 20).toFixed(1);
-      const swayX = (Math.random() * 24 + 10).toFixed(0);
+      const leftPos = (Math.random() * 90 + 5).toFixed(1);
+      const duration = (Math.random() * 12 + 14).toFixed(1);
+      const delay = (Math.random() * 18).toFixed(1);
+      const swayX = (Math.random() * 22 + 8).toFixed(0);
       const rotDeg = (Math.random() * 6 - 3).toFixed(1);
 
       lantern.style.left = `${leftPos}%`;
@@ -93,7 +82,7 @@ document.addEventListener('DOMContentLoaded', () => {
     }
   }
 
-  // Initialize floating sky lanterns
+  // Initialize floating lanterns
   initFloatingLanterns();
 
   // --- Capture Final Video Frame onto Canvas for 100% Static Hold ---
@@ -114,152 +103,15 @@ document.addEventListener('DOMContentLoaded', () => {
     hasOpened = true;
     isPlaying = false;
 
-    // Reveal invitation text overlay smoothly over static final door frame
+    // Reveal invitation text overlay smoothly
     invitationOverlay.classList.remove('hidden');
     void invitationOverlay.offsetWidth;
     invitationOverlay.classList.add('revealed');
 
-    // Initialize HTML5 Scratch Canvas once overlay is visible
+    // Trigger celebratory gold confetti
     setTimeout(() => {
-      initScratchCanvas();
-    }, 150);
-  }
-
-  // --- HTML5 Scratch Card Engine ---
-  const scratchCanvas = document.getElementById('scratchCanvas');
-  const scratchHint = document.getElementById('scratchHint');
-  const quickRevealBtn = document.getElementById('quickRevealBtn');
-  let scratchCtx = null;
-  let isScratching = false;
-  let hasScratchedCleared = false;
-  let dragCount = 0;
-
-  function initScratchCanvas() {
-    if (!scratchCanvas) return;
-    scratchCtx = scratchCanvas.getContext('2d');
-    
-    const container = document.getElementById('scratchContainer');
-    if (!container) return;
-    
-    scratchCanvas.width = container.offsetWidth || 320;
-    scratchCanvas.height = container.offsetHeight || 120;
-    
-    // Render Metallic Gold Foil Gradient
-    const grad = scratchCtx.createLinearGradient(0, 0, scratchCanvas.width, scratchCanvas.height);
-    grad.addColorStop(0, '#E5C158');
-    grad.addColorStop(0.35, '#FFF4D0');
-    grad.addColorStop(0.7, '#D4A338');
-    grad.addColorStop(1, '#A67C1E');
-    
-    scratchCtx.fillStyle = grad;
-    scratchCtx.fillRect(0, 0, scratchCanvas.width, scratchCanvas.height);
-    
-    // Add shimmering gold foil texture speckles
-    scratchCtx.fillStyle = 'rgba(255, 255, 255, 0.35)';
-    for (let i = 0; i < 160; i++) {
-      const x = Math.random() * scratchCanvas.width;
-      const y = Math.random() * scratchCanvas.height;
-      const r = Math.random() * 2 + 0.5;
-      scratchCtx.beginPath();
-      scratchCtx.arc(x, y, r, 0, Math.PI * 2);
-      scratchCtx.fill();
-    }
-    
-    // Add prompt text on foil
-    scratchCtx.font = '600 12px Cormorant Garamond, serif';
-    scratchCtx.fillStyle = 'rgba(10, 10, 15, 0.75)';
-    scratchCtx.textAlign = 'center';
-    scratchCtx.fillText('✦ SCRATCH TO UNLOCK DATE ✦', scratchCanvas.width / 2, scratchCanvas.height / 2 + 4);
-  }
-
-  function scratchAt(x, y) {
-    if (!scratchCtx || hasScratchedCleared) return;
-    
-    scratchCtx.globalCompositeOperation = 'destination-out';
-    scratchCtx.beginPath();
-    scratchCtx.arc(x, y, 22, 0, Math.PI * 2);
-    scratchCtx.fill();
-    
-    dragCount++;
-    if (dragCount % 10 === 0) {
-      checkScratchPercentage();
-    }
-  }
-
-  function getScratchCoords(e) {
-    const rect = scratchCanvas.getBoundingClientRect();
-    let clientX = e.clientX;
-    let clientY = e.clientY;
-    
-    if (e.touches && e.touches[0]) {
-      clientX = e.touches[0].clientX;
-      clientY = e.touches[0].clientY;
-    }
-    
-    return {
-      x: clientX - rect.left,
-      y: clientY - rect.top
-    };
-  }
-
-  function checkScratchPercentage() {
-    if (hasScratchedCleared || !scratchCtx) return;
-    
-    const imgData = scratchCtx.getImageData(0, 0, scratchCanvas.width, scratchCanvas.height);
-    const pixels = imgData.data;
-    let transparentCount = 0;
-    
-    for (let i = 3; i < pixels.length; i += 16) {
-      if (pixels[i] === 0) {
-        transparentCount++;
-      }
-    }
-    
-    const totalSampled = pixels.length / 16;
-    const ratio = transparentCount / totalSampled;
-    
-    if (ratio > 0.35) {
-      revealDateFully();
-    }
-  }
-
-  function revealDateFully() {
-    if (hasScratchedCleared) return;
-    hasScratchedCleared = true;
-    
-    if (scratchCanvas) scratchCanvas.classList.add('fade-out');
-    if (scratchHint) scratchHint.style.opacity = '0';
-    if (quickRevealBtn) quickRevealBtn.style.display = 'none';
-    
-    triggerConfetti();
-  }
-
-  if (scratchCanvas) {
-    ['mousedown', 'touchstart'].forEach(evt => {
-      scratchCanvas.addEventListener(evt, (e) => {
-        isScratching = true;
-        const coords = getScratchCoords(e);
-        scratchAt(coords.x, coords.y);
-      }, { passive: true });
-    });
-
-    ['mousemove', 'touchmove'].forEach(evt => {
-      scratchCanvas.addEventListener(evt, (e) => {
-        if (!isScratching) return;
-        const coords = getScratchCoords(e);
-        scratchAt(coords.x, coords.y);
-      }, { passive: true });
-    });
-
-    ['mouseup', 'mouseleave', 'touchend'].forEach(evt => {
-      scratchCanvas.addEventListener(evt, () => {
-        isScratching = false;
-      });
-    });
-  }
-
-  if (quickRevealBtn) {
-    quickRevealBtn.addEventListener('click', revealDateFully);
+      triggerConfetti();
+    }, 400);
   }
 
   // --- Gold Confetti Particle Celebration Engine ---
@@ -279,16 +131,16 @@ document.addEventListener('DOMContentLoaded', () => {
     const colors = ['#FFF4D0', '#E5C158', '#D4A338', '#FFFFFF', '#F5D77F'];
     confettiParticles = [];
     
-    for (let i = 0; i < 70; i++) {
+    for (let i = 0; i < 60; i++) {
       confettiParticles.push({
         x: confettiCanvas.width / 2 + (Math.random() * 60 - 30),
-        y: confettiCanvas.height * 0.35,
-        vx: (Math.random() - 0.5) * 12,
-        vy: (Math.random() * -10) - 4,
-        size: Math.random() * 6 + 3,
+        y: confettiCanvas.height * 0.3,
+        vx: (Math.random() - 0.5) * 10,
+        vy: (Math.random() * -8) - 3,
+        size: Math.random() * 5 + 3,
         color: colors[Math.floor(Math.random() * colors.length)],
         rotation: Math.random() * 360,
-        rotationSpeed: (Math.random() - 0.5) * 8,
+        rotationSpeed: (Math.random() - 0.5) * 6,
         opacity: 1
       });
     }
@@ -306,9 +158,9 @@ document.addEventListener('DOMContentLoaded', () => {
     confettiParticles.forEach(p => {
       p.x += p.vx;
       p.y += p.vy;
-      p.vy += 0.25;
+      p.vy += 0.22;
       p.rotation += p.rotationSpeed;
-      p.opacity -= 0.008;
+      p.opacity -= 0.009;
       
       if (p.opacity > 0) {
         activeParticles++;
@@ -329,13 +181,13 @@ document.addEventListener('DOMContentLoaded', () => {
     }
   }
 
-  // --- Live Countdown Timer Engine ---
+  // --- Live Countdown Timer Engine (Friday, October 23, 2026 11:00 AM IST) ---
   const cdDays = document.getElementById('cdDays');
   const cdHours = document.getElementById('cdHours');
   const cdMins = document.getElementById('cdMins');
   const cdSecs = document.getElementById('cdSecs');
   
-  const targetWeddingDate = new Date('January 24, 2027 12:00:00').getTime();
+  const targetWeddingDate = new Date('October 23, 2026 11:00:00').getTime();
 
   function updateCountdown() {
     if (!cdDays || !cdHours || !cdMins || !cdSecs) return;
@@ -365,29 +217,6 @@ document.addEventListener('DOMContentLoaded', () => {
   updateCountdown();
   setInterval(updateCountdown, 1000);
 
-  // --- 3D Card Parallax & Tilt Engine ---
-  const tiltCards = document.querySelectorAll('.tilt-card');
-  
-  tiltCards.forEach(card => {
-    card.addEventListener('mousemove', (e) => {
-      const rect = card.getBoundingClientRect();
-      const x = e.clientX - rect.left;
-      const y = e.clientY - rect.top;
-      
-      const centerX = rect.width / 2;
-      const centerY = rect.height / 2;
-      
-      const rotateX = ((y - centerY) / centerY) * -6;
-      const rotateY = ((x - centerX) / centerX) * 6;
-      
-      card.style.transform = `perspective(1000px) rotateX(${rotateX}deg) rotateY(${rotateY}deg) scale3d(1.015, 1.015, 1.015)`;
-    });
-    
-    card.addEventListener('mouseleave', () => {
-      card.style.transform = 'perspective(1000px) rotateX(0deg) rotateY(0deg) scale3d(1, 1, 1)';
-    });
-  });
-
   // --- Door Opening Handler ---
   function openDoorInvitation() {
     if (isPlaying || hasOpened) return;
@@ -395,16 +224,8 @@ document.addEventListener('DOMContentLoaded', () => {
     isPlaying = true;
     initAudioContext();
 
-    // Trigger HTML5 Background Music (Instagram reel audio)
-    const bgmAudio = document.getElementById('bgmAudio');
-    if (bgmAudio) {
-      bgmAudio.loop = true;
-      bgmAudio.volume = 1.0;
-      bgmAudio.play().catch(err => console.warn('BGM audio autoplay handled:', err));
-    }
-
     // Trigger YouTube background music
-    playYouTubeBackgroundMusic('bXa-wbiXiOw', true);
+    playYouTubeBackgroundMusic(defaultYoutubeUrl, true);
 
     // 1. Hide tap callout overlay
     tapOverlay.classList.add('fade-out');
@@ -413,16 +234,15 @@ document.addEventListener('DOMContentLoaded', () => {
     posterImg.classList.add('fade-out');
     staticCanvas.classList.remove('active');
     
-    // 3. Reset video playback to 0 and play continuous single-motion video
+    // 3. Reset video playback to 0 and play continuous video
     video.currentTime = 0;
 
     const playPromise = video.play();
     if (playPromise !== undefined) {
       playPromise.then(() => {
-        // Video playing smoothly to the end
+        // Video playing smoothly
       }).catch(err => {
-        console.warn('Video auto-play error fallback:', err);
-        // Fallback only if browser blocked video playback entirely
+        console.warn('Video playback notice:', err);
         revealInvitationContent();
       });
     }
@@ -438,14 +258,14 @@ document.addEventListener('DOMContentLoaded', () => {
 
   // --- Video Event Listeners ---
   video.addEventListener('timeupdate', () => {
-    // Reveal floating sky lanterns at 6th second of video playback
-    if (video.currentTime >= 6.0) {
+    // Reveal floating sky lanterns at 5.5s
+    if (video.currentTime >= 5.5) {
       const lanternsContainer = document.getElementById('lanternsContainer');
       if (lanternsContainer) lanternsContainer.classList.add('revealed');
     }
 
-    // Trigger fade-in reveal starting from 6th second of video playback
-    if (!hasOpened && (video.currentTime >= 6.0 || video.ended)) {
+    // Trigger invitation overlay reveal
+    if (!hasOpened && (video.currentTime >= 5.8 || video.ended)) {
       revealInvitationContent();
     }
   });
@@ -478,88 +298,15 @@ document.addEventListener('DOMContentLoaded', () => {
     }, 400);
   }
 
-  // --- Door Selector Logic ---
-  function switchDoorStyle(doorId) {
-    if (currentDoorId === doorId) return;
-    
-    currentDoorId = doorId;
-    resetDoorState();
-
-    // Update Poster & Video source (AVIF primary, WebP fallback)
-    const posterPath = `/assets/doors/${doorId}.avif`;
-    const videoPath = `/assets/doors/${doorId}.mp4`;
-
-    posterImg.onerror = () => {
-      if (!posterImg.src.endsWith('.webp')) {
-        posterImg.src = `/assets/doors/${doorId}.webp`;
-      }
-    };
-    posterImg.src = posterPath;
-    videoSource.src = videoPath;
-    video.load();
-
-    // Update active highlight in modal
-    document.querySelectorAll('.door-option-card').forEach(card => {
-      card.classList.toggle('active', card.dataset.door === doorId);
-    });
-
-    doorModal.classList.add('hidden');
-  }
-
-  // Event Listener for Tap Overlay
+  // Event Listeners for Tap Overlay & Replay
   tapOverlay.addEventListener('click', openDoorInvitation);
   replayBtn.addEventListener('click', resetDoorState);
 
-  // --- Door Modal & Details Editor Controls (Optional) ---
-  if (doorSelectBtn && doorModal) doorSelectBtn.addEventListener('click', () => doorModal.classList.remove('hidden'));
-  if (closeDoorModal && doorModal) closeDoorModal.addEventListener('click', () => doorModal.classList.add('hidden'));
-  
-  document.querySelectorAll('.door-option-card').forEach(card => {
-    card.addEventListener('click', () => {
-      switchDoorStyle(card.dataset.door);
-    });
-  });
-
-  if (editDetailsBtn && editorModal) editDetailsBtn.addEventListener('click', () => editorModal.classList.remove('hidden'));
-  if (closeEditorModal && editorModal) closeEditorModal.addEventListener('click', () => editorModal.classList.add('hidden'));
-
-  if (editorForm) {
-    editorForm.addEventListener('submit', (e) => {
-      e.preventDefault();
-      
-      document.getElementById('displayGroom').innerText = document.getElementById('inputGroom').value;
-      document.getElementById('displayBride').innerText = document.getElementById('inputBride').value;
-      document.getElementById('displayBismillah').innerText = document.getElementById('inputBismillah').value;
-      document.getElementById('displayGreeting').innerText = document.getElementById('inputGreeting').value;
-      document.getElementById('displayDateNum').innerText = document.getElementById('inputDateNum').value;
-      document.getElementById('displayMonth').innerText = document.getElementById('inputMonth').value;
-      document.getElementById('displayYear').innerText = document.getElementById('inputYear').value;
-      document.getElementById('displayDay').innerText = document.getElementById('inputDay').value;
-      document.getElementById('displayTime').innerText = document.getElementById('inputTime').value;
-      document.getElementById('displayVenue').innerText = document.getElementById('inputVenue').value;
-      document.getElementById('displayLocation').innerText = document.getElementById('inputLocation').value;
-      if (document.getElementById('displayDressCode') && document.getElementById('inputDressCode')) {
-        document.getElementById('displayDressCode').innerText = document.getElementById('inputDressCode').value;
-      }
-
-      document.getElementById('mapVenueTitle').innerText = document.getElementById('inputVenue').value;
-      document.getElementById('mapVenueAddress').innerText = document.getElementById('inputLocation').value;
-
-      const ytUrlInput = document.getElementById('inputYoutubeUrl');
-      if (ytUrlInput && ytUrlInput.value) {
-        playYouTubeBackgroundMusic(ytUrlInput.value, true);
-      }
-
-      if (editorModal) editorModal.classList.add('hidden');
-    });
-  }
-
   // --- YouTube Background Music Player Engine ---
-  let currentYoutubeVideoId = 'bXa-wbiXiOw';
-  let ytPlayerIframe = document.getElementById('ytIframe');
+  let ytPlayerIframe = null;
 
   function extractYouTubeId(url) {
-    if (!url) return 'bXa-wbiXiOw';
+    if (!url) return '';
     url = url.trim();
     const regExp = /^.*(youtu.be\/|v\/|u\/\w\/|embed\/|watch\?v=|\&v=)([^#\&\?]*).*/;
     const match = url.match(regExp);
@@ -567,172 +314,88 @@ document.addEventListener('DOMContentLoaded', () => {
       return match[2];
     }
     if (url.length === 11) return url;
-    return 'bXa-wbiXiOw';
+    return '';
   }
 
-  function sendYtCommand(func, args = []) {
-    ytPlayerIframe = ytPlayerIframe || document.getElementById('ytIframe');
-    if (!ytPlayerIframe || !ytPlayerIframe.contentWindow) return;
-    try {
-      ytPlayerIframe.contentWindow.postMessage(JSON.stringify({
-        event: 'command',
-        func: func,
-        args: args
-      }), '*');
-    } catch (e) {
-      console.warn('YouTube postMessage error:', e);
-    }
-  }
-
-  function playYouTubeBackgroundMusic(url = 'bXa-wbiXiOw', autoPlay = true) {
+  function playYouTubeBackgroundMusic(url, autoPlay = true) {
     const videoId = extractYouTubeId(url);
-    currentYoutubeVideoId = videoId;
-    ytPlayerIframe = document.getElementById('ytIframe');
+    if (!videoId) return;
+
     const container = document.getElementById('youtubePlayerContainer');
-    
-    if (!ytPlayerIframe && container) {
-      const mute = isAudioMuted ? 1 : 0;
-      const playParam = autoPlay ? 1 : 0;
-      const origin = encodeURIComponent(window.location.origin);
-      container.innerHTML = `<iframe id="ytIframe" width="1" height="1" 
-        src="https://www.youtube.com/embed/${videoId}?enablejsapi=1&autoplay=${playParam}&loop=1&playlist=${videoId}&controls=0&mute=${mute}&origin=${origin}&playsinline=1" 
-        frameborder="0" allow="autoplay; encrypted-media; picture-in-picture"></iframe>`;
-      ytPlayerIframe = document.getElementById('ytIframe');
+    if (!container) return;
+
+    if (ytPlayerIframe) {
+      toggleYouTubeAudioMute(isAudioMuted);
+      return;
     }
 
-    if (!isAudioMuted && autoPlay) {
-      sendYtCommand('unMute');
-      sendYtCommand('setVolume', [100]);
-      sendYtCommand('playVideo');
-    }
+    const muteParam = isAudioMuted ? 1 : 0;
+    const playParam = autoPlay ? 1 : 0;
+    container.innerHTML = `<iframe id="ytIframe" width="200" height="200" 
+      src="https://www.youtube.com/embed/${videoId}?enablejsapi=1&autoplay=${playParam}&loop=1&playlist=${videoId}&controls=0&mute=${muteParam}" 
+      frameborder="0" allow="autoplay"></iframe>`;
+
+    ytPlayerIframe = document.getElementById('ytIframe');
   }
 
   function toggleYouTubeAudioMute(isMuted) {
-    if (isMuted) {
-      sendYtCommand('mute');
-    } else {
-      sendYtCommand('unMute');
-      sendYtCommand('setVolume', [100]);
-      sendYtCommand('playVideo');
+    if (!ytPlayerIframe || !ytPlayerIframe.contentWindow) return;
+    const command = isMuted ? 'mute' : 'unMute';
+    try {
+      ytPlayerIframe.contentWindow.postMessage(JSON.stringify({
+        event: 'command',
+        func: command,
+        args: []
+      }), '*');
+    } catch (e) {
+      console.warn('YouTube audio postMessage notice:', e);
     }
   }
 
   // --- Audio Mute Toggle ---
-  if (audioToggleBtn) {
-    audioToggleBtn.addEventListener('click', () => {
-      isAudioMuted = !isAudioMuted;
-      video.muted = isAudioMuted;
-      
-      toggleYouTubeAudioMute(isAudioMuted);
+  audioToggleBtn.addEventListener('click', () => {
+    isAudioMuted = !isAudioMuted;
+    video.muted = isAudioMuted;
+    
+    toggleYouTubeAudioMute(isAudioMuted);
 
-      const bgmAudio = document.getElementById('bgmAudio');
-      if (bgmAudio) {
-        if (isAudioMuted) {
-          bgmAudio.pause();
-        } else {
-          bgmAudio.play().catch(err => console.warn('BGM audio play error:', err));
-        }
-      }
-
-      if (isAudioMuted) {
-        audioIconOn.classList.add('hidden');
-        audioIconOff.classList.remove('hidden');
-      } else {
-        audioIconOn.classList.remove('hidden');
-        audioIconOff.classList.add('hidden');
-        initAudioContext();
-      }
-    });
-  }
+    if (isAudioMuted) {
+      audioIconOn.classList.add('hidden');
+      audioIconOff.classList.remove('hidden');
+    } else {
+      audioIconOn.classList.remove('hidden');
+      audioIconOff.classList.add('hidden');
+      initAudioContext();
+    }
+  });
 
   // --- Map Modal Controls ---
   openMapBtn.addEventListener('click', () => mapModal.classList.remove('hidden'));
   closeMapModal.addEventListener('click', () => mapModal.classList.add('hidden'));
 
   // Close modals when clicking backdrop
-  [doorModal, editorModal, mapModal].filter(Boolean).forEach(modal => {
-    modal.addEventListener('click', (e) => {
-      if (e.target === modal) {
-        modal.classList.add('hidden');
-      }
-    });
+  mapModal.addEventListener('click', (e) => {
+    if (e.target === mapModal) {
+      mapModal.classList.add('hidden');
+    }
   });
 
   // --- Add to Google Calendar ---
-  if (addToCalendarBtn) {
-    addToCalendarBtn.addEventListener('click', () => {
-      const bride = document.getElementById('displayBride') ? document.getElementById('displayBride').innerText : "Alison";
-      const groom = document.getElementById('displayGroom') ? document.getElementById('displayGroom').innerText : "Aman";
+  addToCalendarBtn.addEventListener('click', () => {
+    const title = encodeURIComponent("Wedding of Mithun & Ann Mariya");
+    const details = encodeURIComponent("Together with their families, Mithun & Ann Mariya request the honor of your presence at the celebration of their marriage.");
+    const loc = encodeURIComponent("Sub Registrar Office, Kazhakkoottam, Thiruvananthapuram");
 
-      const title = encodeURIComponent(`Wedding Festivities of ${bride} & ${groom}`);
-      const details = encodeURIComponent(`Join us to celebrate the wedding festivities of ${bride} and ${groom} in Mumbai.\n\nEvents Schedule:\n- Sagai, Spirits & Soirée: Friday, Jan 22, 2027 @ Prince Hall, NSCI, Worli\n- Baraat: Sunday, Jan 24, 2027 (11:00 AM onwards) @ The Orchid, Mumbai\n- Jaimala: Sunday, Jan 24, 2027 (12:30 PM) @ The Orchid, Mumbai\n- Wedding Ceremony & Pheras: Sunday, Jan 24, 2027 (1:00 PM onwards) @ Prive Hall, The Orchid, Mumbai`);
-      const loc = encodeURIComponent(`The Orchid, Mumbai & Prince Hall, NSCI, Worli`);
+    // October 23, 2026, 11:00 AM IST (05:30 UTC) to 2:00 PM IST (08:30 UTC)
+    const googleCalendarUrl = `https://calendar.google.com/calendar/render?action=TEMPLATE&text=${title}&details=${details}&location=${loc}&dates=20261023T053000Z/20261023T083000Z`;
 
-      const googleCalendarUrl = `https://calendar.google.com/calendar/render?action=TEMPLATE&text=${title}&details=${details}&location=${loc}&dates=20270124T053000Z/20270124T170000Z`;
+    window.open(googleCalendarUrl, '_blank', 'noopener,noreferrer');
+  });
 
-      window.open(googleCalendarUrl, '_blank', 'noopener,noreferrer');
-    });
-  }
-
-  // ==========================================================================
-  // HIGH-PERFORMANCE IDLE PREFETCH ENGINE & SERVICE WORKER
-  // ==========================================================================
-  
-  // Register Service Worker for 0ms Repeat-Visit Loading
+  // Service Worker for 0ms Repeat-Visit Loading
   if ('serviceWorker' in navigator && window.location.protocol !== 'file:') {
     window.addEventListener('load', () => {
-      navigator.serviceWorker.register('/sw.js').catch(err => {
-        console.log('Service Worker registration skipped:', err);
-      });
+      navigator.serviceWorker.register('/sw.js').catch(() => {});
     });
   }
-
-  // Prefetch secondary doors & videos in background during idle time
-  function prefetchSecondaryAssets() {
-    const doorIds = ['1', '2', '3', '4', '6'];
-    const prefetch = () => {
-      doorIds.forEach(id => {
-        // Prefetch AVIF/WebP image
-        const img = new Image();
-        img.src = `/assets/doors/${id}.avif`;
-
-        // Prefetch MP4 video
-        const vid = document.createElement('video');
-        vid.preload = 'auto';
-        vid.src = `/assets/doors/${id}.mp4`;
-      });
-    };
-
-    if ('requestIdleCallback' in window) {
-      requestIdleCallback(prefetch, { timeout: 3000 });
-    } else {
-      setTimeout(prefetch, 2000);
-    }
-  }
-
-  // --- Constant Floating Order Bar Minimization / Expansion Logic ---
-  const floatingOrderBar = document.getElementById('floatingOrderBar');
-  const floatingWidgetClose = document.getElementById('floatingWidgetClose');
-  const floatingWidgetTrigger = document.getElementById('floatingWidgetTrigger');
-
-  if (floatingOrderBar && floatingWidgetClose && floatingWidgetTrigger) {
-    floatingWidgetClose.addEventListener('click', (e) => {
-      e.stopPropagation();
-      floatingOrderBar.classList.add('collapsed');
-      setTimeout(() => {
-        floatingOrderBar.classList.add('hidden');
-        floatingWidgetTrigger.classList.remove('hidden');
-      }, 300);
-    });
-
-    floatingWidgetTrigger.addEventListener('click', () => {
-      floatingWidgetTrigger.classList.add('hidden');
-      floatingOrderBar.classList.remove('hidden');
-      void floatingOrderBar.offsetWidth; // Force reflow
-      floatingOrderBar.classList.remove('collapsed');
-    });
-  }
-
-  prefetchSecondaryAssets();
 });
-
